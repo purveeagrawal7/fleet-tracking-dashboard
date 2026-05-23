@@ -1,70 +1,155 @@
-# Getting Started with Create React App
+# Fleet Tracking Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time fleet monitoring web application built with React.
 
-## Available Scripts
+## What This App Does
 
-In the project directory, you can run:
+This dashboard lets you monitor a fleet of 25 vehicles in real time. You can see every vehicle's current status, speed, location, driver details, and battery/fuel levels. The data updates automatically via a WebSocket connection roughly every 3 minutes without needing to refresh the page.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Vehicle list table** — Shows all vehicles with status badges, speed, destination, ETA, and GPS coordinates
+- **Fleet statistics panel** — Total vehicles, average speed, number moving, last update time
+- **Status filters** — Filter vehicles by All / Idle / En Route / Delivered with live counts
+- **Vehicle detail modal** — Click any row to see full details including battery and fuel progress bars
+- **Live WebSocket updates** — Data refreshes automatically; a pulsing "Live" badge shows connection status
+- **Auto-reconnect** — If the WebSocket drops, the app reconnects after 5 seconds
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## How to Run Locally
 
-### `npm run build`
+```bash
+# 1. Install dependencies
+npm install
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# 2. Start the development server
+npm start
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Folder Structure
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+src/
+├── components/
+│   ├── Header.jsx        — Top bar with title and Live badge
+│   ├── Sidebar.jsx       — Status filters and statistics panel
+│   ├── VehicleTable.jsx  — The main vehicles data table
+│   └── VehicleModal.jsx  — Pop-up modal with full vehicle details
+├── hooks/
+│   └── useWebSocket.js   — Custom hook that manages the WebSocket connection
+├── services/
+│   └── api.js            — All HTTP requests to the REST API (using axios)
+├── utils/
+│   └── formatters.js     — Helper functions: dates, locations, status badges
+├── App.js                — Root component: holds all state and connects everything
+└── App.css               — Custom styles (colors, layout, badges, modal, animations)
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## File-by-File Explanation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### `src/services/api.js`
+This file is the only place that talks to the backend. It uses **axios** to make HTTP requests. There are 4 functions:
+- `fetchVehicles()` — gets the full list of all 25 vehicles
+- `fetchVehicleById(id)` — gets one vehicle by its ID
+- `fetchVehiclesByStatus(status)` — gets vehicles filtered by status (idle / en_route / delivered)
+- `fetchStatistics()` — gets the fleet summary numbers
 
-## Learn More
+All functions return a promise. The base URL (`https://case-study-26cf.onrender.com`) is defined once at the top.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### `src/hooks/useWebSocket.js`
+This is a **custom React hook** — a reusable piece of logic, not a visual component. It:
+1. Opens a WebSocket connection to `wss://case-study-26cf.onrender.com` when the component mounts
+2. Calls the `onUpdate` function (passed in by App.js) whenever a new message arrives
+3. If the connection closes or errors, it waits 5 seconds then reconnects automatically
+4. Returns `{ wsConnected }` — a boolean that tells the UI whether the socket is open
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Using a custom hook keeps the WebSocket logic separated from the visual code.
 
-### Code Splitting
+### `src/utils/formatters.js`
+Pure helper functions (no React, no API calls):
+- `formatDate(iso)` — converts an ISO timestamp to `"DD/MM/YYYY, HH:MM:SS"` format
+- `formatLocation(lat, lng)` — formats coordinates to 4 decimal places: `"37.7575, -122.4340"`
+- `getStatusConfig(status)` — maps a status string to a display label and a CSS class name for the badge
+- `formatSpeed(speed)` — adds "mph" to a number
+- `formatETA(iso)` — extracts just the HH:MM time from a timestamp
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### `src/App.js`
+The root of the application. This is where all the **state lives**:
+- `vehicles` — the array of vehicle objects currently displayed
+- `statistics` — the fleet summary (total, idle count, en_route count, etc.)
+- `selectedVehicle` — the vehicle whose modal is open (null means no modal)
+- `statusFilter` — which filter radio button is selected
+- `loading` — shows the spinner while data is fetching
 
-### Analyzing the Bundle Size
+**Data flow:**
+1. On first load, `useEffect` calls `fetchStatistics()` once
+2. A second `useEffect` watches `statusFilter` — whenever it changes it re-fetches vehicles (all or filtered)
+3. The `useWebSocket` hook is used here; its `onUpdate` callback merges new vehicle data into the existing list
+4. State is passed down to child components as props
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### `src/components/Header.jsx`
+The top bar. Receives `wsConnected` and shows the pulsing green "Live" badge when connected.
 
-### Making a Progressive Web App
+### `src/components/Sidebar.jsx`
+The left panel. Receives `statistics`, `statusFilter`, and `onFilterChange`. Renders:
+- A live/connecting status indicator
+- Radio buttons for each status (showing counts from `statistics`)
+- A 2x2 grid of fleet statistics cards
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### `src/components/VehicleTable.jsx`
+The data table. Receives `vehicles`, `onVehicleClick`, and `loading`.
+- Shows a spinner when `loading` is true
+- Renders one table row per vehicle
+- Clicking a row calls `onVehicleClick(vehicle)` which sets `selectedVehicle` in App.js
 
-### Advanced Configuration
+### `src/components/VehicleModal.jsx`
+The pop-up detail view. Receives `vehicle` (or null) and `onClose`.
+- Returns null immediately if `vehicle` is null (nothing to show)
+- Displays a semi-transparent overlay; clicking outside the modal closes it
+- Shows vehicle details in a 2-column grid
+- Battery and fuel use colored progress bars (turns red if below 30%)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## API Reference
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/vehicles` | GET | All vehicles |
+| `/api/vehicles/{id}` | GET | Single vehicle |
+| `/api/vehicles/status/{status}` | GET | Vehicles by status |
+| `/api/statistics` | GET | Fleet summary stats |
 
-### `npm run build` fails to minify
+**WebSocket:** `wss://case-study-26cf.onrender.com`
+Pushes vehicle updates approximately every 3 minutes.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| React 18 | UI framework |
+| Create React App | Project scaffolding |
+| Bootstrap 5 | Base CSS utilities |
+| Axios | HTTP requests |
+| Native WebSocket API | Real-time updates |
+
+---
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+Creates an optimized bundle in the `build/` folder ready for deployment.
