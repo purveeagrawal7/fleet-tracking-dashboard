@@ -26,6 +26,15 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!@testing-library/dom/)"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+      "\\.(css|less|scss|sass)$": "<rootDir>/src/__mocks__/fileMock.js"
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",
