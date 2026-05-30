@@ -262,80 +262,6 @@ body {
   color: #1a1a2e;
 }
 
-/* ============================================================
-   Vehicle Table
-   ============================================================ */
-.table-wrapper {
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #e8e8e8;
-  overflow-x: auto;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-
-.vehicle-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.vehicle-table thead th {
-  background: #f9fafb;
-  color: #666;
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 10px 12px;
-  border-bottom: 1px solid #e8e8e8;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.vehicle-table tbody td {
-  padding: 9px 12px;
-  border-bottom: 1px solid #f0f0f0;
-  color: #333;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.vehicle-row {
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.vehicle-row:hover {
-  background: #f0f7ff;
-}
-
-.vehicle-row:last-child td {
-  border-bottom: none;
-}
-
-.vehicle-number {
-  color: #2563eb;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.destination-cell {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.date-cell, .location-cell {
-  font-size: 11px;
-  color: #666;
-}
-
-.no-data {
-  text-align: center;
-  color: #aaa;
-  padding: 32px;
-}
 
 /* ============================================================
    Status Badges
@@ -368,9 +294,6 @@ body {
   border: 1px solid #fde68a;
 }
 
-/* ============================================================
-   Loading Spinner
-   ============================================================ */
 .table-loading {
   display: flex;
   align-items: center;
@@ -381,19 +304,6 @@ body {
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e8e8e8;
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #e0e0e0;
-  border-top-color: #2e7d32;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* ============================================================

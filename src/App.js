@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-
+import Chip from '@mui/material/Chip';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import VehicleTable from './components/VehicleTable';
@@ -74,10 +74,16 @@ function App() {
           <div className="content-header">
             <h2 className="content-title">Vehicles ({vehicles.length})</h2>
             {wsConnected && (
-              <span className="live-badge">
-                <span className="live-dot"></span>
-                Live
-              </span>
+             <Chip
+             label="Live"
+             size="small"
+             sx={{
+               backgroundColor: '#fff',
+               color: '#2e7d32',
+               border: '1px solid #2e7d32',
+               fontWeight: 600
+             }}
+           />
             )}
           </div>
 

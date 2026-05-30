@@ -10,14 +10,14 @@ function Header({ wsConnected }) {
         </div>
         <p className="header-subtitle">Real-time vehicle monitoring &bull; LogiNext Case Study</p>
       </div>
-      <div className="header-right">
+      {/* <div className="header-right">
         {wsConnected && (
           <span className="live-badge">
             <span className="live-dot"></span>
             Live
           </span>
         )}
-      </div>
+      </div> */}
     </header>
   );
 }
