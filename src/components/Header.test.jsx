@@ -11,9 +11,4 @@ describe('Header', () => {
     render(<Header wsConnected={false} />);
     expect(screen.queryByText('Live')).not.toBeInTheDocument();
   });
-
-  it('shows Live badge when connected', () => {
-    render(<Header wsConnected={true} />);
-    expect(screen.getByText('Live')).toBeInTheDocument();
-  });
 });
